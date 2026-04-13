@@ -100,6 +100,12 @@ The frontend will be available at `http://localhost:3000`
 - `GET /api/brands` - Get all product brands
 - `GET /api/materials` - Get all product materials
 
+<img width="696" height="951" alt="Screenshot 2026-04-13 115348" src="https://github.com/user-attachments/assets/e538a516-1f17-4e7f-be4e-9a28120b918a" />
+<img width="2529" height="1266" alt="Screenshot 2026-04-13 115135" src="https://github.com/user-attachments/assets/789bc92d-8555-417f-914b-4f3b090c5645" />
+<img width="2546" height="1251" alt="Screenshot 2026-04-13 115117" src="https://github.com/user-attachments/assets/923f7298-137d-4257-8b10-979f793e4b6c" />
+<img width="2543" height="1254" alt="Screenshot 2026-04-13 115057" src="https://github.com/user-attachments/assets/445b021a-f6b7-404f-a3fd-e6e73340970b" />
+
+
 #### AI Features
 - `POST /api/recommend` - Get AI-powered product recommendations
 - `POST /api/similar` - Get similar products
