@@ -41,7 +41,7 @@ const Chatbot = () => {
 
   const loadSuggestions = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/chatbot/suggestions');
+      const response = await axios.get('/api/chatbot/suggestions');
       if (response.data.status === 'success') {
         setSuggestions(response.data.suggestions.slice(0, 4)); // Show first 4
       }
@@ -67,7 +67,7 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/chatbot/message', {
+      const response = await axios.post('/api/chatbot/message', {
         message: messageText,
         user_id: userId,
         conversation_history: messages.slice(-5) // Send last 5 messages for context
@@ -126,7 +126,7 @@ const Chatbot = () => {
 
   const resetConversation = async () => {
     try {
-      await axios.post(`http://127.0.0.1:8000/api/chatbot/reset/${userId}`);
+      await axios.post(`/api/chatbot/reset/${userId}`);
       setMessages([{
         id: Date.now(),
         type: 'bot',

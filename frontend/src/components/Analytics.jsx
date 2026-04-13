@@ -52,10 +52,10 @@ const Analytics = () => {
       setRefreshing(true);
 
       const [overviewRes, categoriesRes, brandsRes, priceRes] = await Promise.all([
-        axios.get('http://127.0.0.1:8000/api/analytics/overview'),
-        axios.get('http://127.0.0.1:8000/api/analytics/categories'),
-        axios.get('http://127.0.0.1:8000/api/analytics/brands'),
-        axios.get('http://127.0.0.1:8000/api/analytics/price-distribution')
+        axios.get('/api/analytics/overview'),
+        axios.get('/api/analytics/categories'),
+        axios.get('/api/analytics/brands'),
+        axios.get('/api/analytics/price-distribution')
       ]);
 
       setAnalytics({

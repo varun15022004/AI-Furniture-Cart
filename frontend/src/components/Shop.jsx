@@ -13,7 +13,7 @@ const Shop = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
     category: '',
-    priceRange: [0, 1000],
+    priceRange: [0, 10000],
     material: '',
     brand: ''
   });
@@ -43,7 +43,7 @@ const Shop = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/products', {
+      const response = await axios.get('/api/products', {
         params: {
           limit: 50
         }
@@ -64,7 +64,7 @@ const Shop = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/products/search', {
+      const response = await axios.get('/api/products/search', {
         params: {
           q: query,
           limit: 50
@@ -88,8 +88,8 @@ const Shop = () => {
     // Category filter
     if (filters.category) {
       filtered = filtered.filter(product => {
-        const categories = product.categories_clean || '';
-        return categories.toLowerCase().includes(filters.category.toLowerCase());
+        const categories = product.categories || product.categories_clean || '';
+        return String(categories).toLowerCase().includes(filters.category.toLowerCase());
       });
     }
 
@@ -102,16 +102,16 @@ const Shop = () => {
     // Material filter
     if (filters.material) {
       filtered = filtered.filter(product => {
-        const material = product.material_norm || '';
-        return material.toLowerCase().includes(filters.material.toLowerCase());
+        const material = product.material || product.material_norm || '';
+        return String(material).toLowerCase().includes(filters.material.toLowerCase());
       });
     }
 
     // Brand filter
     if (filters.brand) {
       filtered = filtered.filter(product => {
-        const brand = product.brand_norm || '';
-        return brand.toLowerCase().includes(filters.brand.toLowerCase());
+        const brand = product.brand || product.brand_norm || '';
+        return String(brand).toLowerCase().includes(filters.brand.toLowerCase());
       });
     }
 
@@ -249,7 +249,7 @@ const Shop = () => {
                       setSearchQuery('');
                       setFilters({
                         category: '',
-                        priceRange: [0, 1000],
+                        priceRange: [0, 10000],
                         material: '',
                         brand: ''
                       });

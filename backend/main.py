@@ -10,6 +10,10 @@ from datetime import datetime
 import asyncio
 import io
 
+# Configure logging (must be before any logger usage)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 try:
     from ai_engine import AdvancedAIEngine
     AI_ENGINE_AVAILABLE = True
@@ -23,10 +27,6 @@ try:
 except ImportError as e:
     logger.warning(f"Chatbot not available: {e}")
     CHATBOT_AVAILABLE = False
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -153,7 +153,10 @@ async def search_products(q: Optional[str] = None, limit: int = 20):
             query_lower = q.lower()
             matched = products_df[
                 products_df['title'].astype(str).str.lower().str.contains(query_lower, na=False) |
-                products_df['description'].astype(str).str.lower().str.contains(query_lower, na=False)
+                products_df['description'].astype(str).str.lower().str.contains(query_lower, na=False) |
+                products_df['categories'].astype(str).str.lower().str.contains(query_lower, na=False) |
+                products_df['material'].astype(str).str.lower().str.contains(query_lower, na=False) |
+                products_df['brand'].astype(str).str.lower().str.contains(query_lower, na=False)
             ].head(limit)
         else:
             matched = products_df.head(limit)
@@ -629,12 +632,77 @@ async def chatbot_message(request: dict):
         # Process message with chatbot
         result = chatbot.process_message(message, user_id, conversation_history)
         
+        products = result.get('products', [])
+        
+        # Fallback if no products returned by AI engine
+        try:
+            if not products and result.get('intent') in ['search_product', 'price_query', 'style_query', 'room_query', 'material_query']:
+                global products_df
+                if products_df is None:
+                    products_df = load_products()
+                    
+                with open("debug_chatbot.txt", "w") as dbg:
+                    dbg.write(f"Entities: {result.get('entities')}\n")
+                    dbg.write(f"DF empty: {products_df.empty}\n")
+                    
+                if not products_df.empty:
+                    entities = result.get('entities', {})
+                    matched = products_df.copy()
+                    
+                    cat = entities.get('category')
+                    if cat:
+                        matched = matched[matched['categories'].astype(str).str.lower().str.contains(str(cat).lower(), na=False) | 
+                                          matched['title'].astype(str).str.lower().str.contains(str(cat).lower(), na=False)]
+                    
+                    with open("debug_chatbot.txt", "a") as dbg:
+                        dbg.write(f"Matched after cat: {len(matched)}\n")
+                    
+                    mat = entities.get('material')
+                    if mat:
+                        matched = matched[matched['material'].astype(str).str.lower().str.contains(str(mat).lower(), na=False) |
+                                          matched['title'].astype(str).str.lower().str.contains(str(mat).lower(), na=False)]
+                                          
+                    if matched.empty:
+                        words = [w for w in message.lower().split() if len(w) > 3][:2]
+                        for w in words:
+                            tmp_matched = products_df[products_df['title'].astype(str).str.lower().str.contains(w, na=False)]
+                            if not tmp_matched.empty:
+                                matched = tmp_matched
+                                break
+                    
+                    with open("debug_chatbot.txt", "a") as dbg:
+                        dbg.write(f"Matched before loop: {len(matched)}\n")
+                    
+                    fallback_products = []
+                    for _, row in matched.head(5).iterrows():
+                        try:
+                            price_val = pd.to_numeric(row.get('price_num', 0), errors='coerce')
+                            price_val = float(price_val) if pd.notna(price_val) else 0.0
+                        except (ValueError, TypeError):
+                            price_val = 0.0
+                        fallback_products.append({
+                            'id': str(row.get('uniq_id', '')),
+                            'title': str(row.get('title', '')),
+                            'price': price_val,
+                            'category': str(row.get('categories', '')),
+                            'description': str(row.get('description', ''))[:100] + '...',
+                            'similarity_score': 1.0,
+                            'reason': 'Recommended based on your query',
+                            'images': str(row.get('images', '[]'))
+                        })
+                    if fallback_products:
+                        products = fallback_products
+        except Exception as e:
+            with open("debug_chatbot.txt", "a") as dbg:
+                dbg.write(f"Exception: {str(e)}\n")
+            logger.error(f"Fallback search error: {e}")
+
         return {
             "response": result.get('response', ''),
-            "products": result.get('products', []),
+            "products": products,
             "intent": result.get('intent', ''),
             "entities": result.get('entities', {}),
-            "has_suggestions": result.get('has_suggestions', False),
+            "has_suggestions": len(products) > 0,
             "conversation_id": result.get('conversation_id', user_id),
             "timestamp": result.get('timestamp'),
             "status": "success"
@@ -717,4 +785,4 @@ async def get_chatbot_suggestions():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)

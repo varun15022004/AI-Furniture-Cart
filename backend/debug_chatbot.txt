@@ -1,0 +1,4 @@
+Entities: {'category': 'chair'}
+DF empty: False
+Matched after cat: 62
+Matched before loop: 62
