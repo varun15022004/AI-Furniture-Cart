@@ -44,7 +44,9 @@ product-recommender/
 │   │   └── App.js            # Main React application
 │   └── package.json          # Frontend dependencies
 └── notebooks/                 # Jupyter notebooks for analysis
-```<img width="696" height="951" alt="Screenshot 2026-04-13 115348" src="https://github.com/user-attachments/assets/a2f41a37-9d0f-4843-9a99-3ba46e005461" />
+
+
+<img width="696" height="951" alt="Screenshot 2026-04-13 115348" src="https://github.com/user-attachments/assets/a2f41a37-9d0f-4843-9a99-3ba46e005461" />
 <img width="2542" height="1258" alt="Screenshot 2026-04-13 115214" src="https://github.com/user-attachments/assets/9ef20c31-b067-4c82-87d5-7cc18313de88" />
 <img width="2529" height="1266" alt="Screenshot 2026-04-13 115135" src="https://github.com/user-attachments/assets/05e3726c-60c0-431a-ae69-a42c7f80c4fc" />
 <img width="2546" height="1251" alt="Screenshot 2026-04-13 115117" src="https://github.com/user-attachments/assets/52488322-5110-442a-a0b7-e5881549089a" />
